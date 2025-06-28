@@ -1,15 +1,13 @@
 const { SlashCommandBuilder } = require('discord.js');
 const PartnerGuild = require('../../models/PartnerGuild');
-
-// Bot sahibinin Discord ID'si buraya yazılacak
-const BOT_OWNER_ID = 'YOUR_BOT_OWNER_ID_HERE';
+const { BOT_OWNER_ID } = require('../../config');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('yetkili-ekle')
     .setDescription('Bir sunucu için partner yetkilisi ekler (sadece bot sahibi kullanabilir).')
-    .setDefaultMemberPermissions(0)  // Sunucuda kimse göremez
-    .setDMPermission(false)          // DM'de görünmez
+    .setDefaultMemberPermissions(0)
+    .setDMPermission(false)
     .addUserOption(option =>
       option.setName('kullanıcı')
         .setDescription('Yetkili olarak eklenecek kişi')
@@ -22,7 +20,6 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    // Sadece bot sahibi kullanabilir
     if (interaction.user.id !== BOT_OWNER_ID) {
       return interaction.reply({ content: '❌ Bu komutu sadece bot sahibi kullanabilir.', ephemeral: true });
     }
@@ -30,7 +27,6 @@ module.exports = {
     const user = interaction.options.getUser('kullanıcı');
     const guildId = interaction.options.getString('sunucu_id');
 
-    // Veritabanından sunucu kaydını bul
     const guildData = await PartnerGuild.findOne({ guildId });
     if (!guildData) {
       return interaction.reply({ content: '❌ Bu sunucu partner sisteminde değil.', ephemeral: true });
